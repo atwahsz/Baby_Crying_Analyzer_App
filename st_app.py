@@ -101,13 +101,16 @@ with tab1:
 
 with tab2:
     # Record audio using the browser's microphone
-    audio = mic_recorder(start_prompt="Start recording", stop_prompt="Stop recording", just_once=True, format="wav")
+    audio = mic_recorder(start_prompt="أبدأ التسجيل", stop_prompt="إيقاف التسجيل", just_once=True, format="wav")
     if audio is not None:
         # Save the recorded audio to a temporary location
         temp_file_path = "temp_file.wav"
         audio_data = np.frombuffer(audio["bytes"], dtype=np.int16)
         audio_data = audio_data.reshape(-1, 1)  # Assuming mono audio
         sf.write(temp_file_path, audio_data, audio["sample_rate"])
+
+        # Display the message
+        st.write("الصوت قيد التحليل. الرجاء الإنتظار...")
 
         # Classify the baby's cry
         predicted_label = main(temp_file_path)
