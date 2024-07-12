@@ -4,3 +4,4 @@ transformers==4.42.4
 soundfile==0.12.1
 sounddevice==0.4.7
 numpy==1.26.4
+streamlit_mic_recorder==0.0.8
