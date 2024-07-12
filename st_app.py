@@ -3,11 +3,9 @@ import librosa
 import torch
 from transformers import AutoConfig, AutoModelForAudioClassification, AutoFeatureExtractor
 import soundfile as sf
-from safetensors.torch import load_file as safe_torch_load
-import os
-import sounddevice as sd
 import numpy as np
-
+from streamlit_mic_recorder import mic_recorder
+import os
 
 # Load the model configuration
 config = AutoConfig.from_pretrained("jstoone/distil-ast-audioset-finetuned-cry")
@@ -79,9 +77,9 @@ body {
 </style>
 """, unsafe_allow_html=True)
 
-option = st.radio('اختر طريقة تحميل الصوت', ('رفع ملف الصوت', 'تسجيل صوت جديد'))
+tab1, tab2 = st.tabs(["رفع ملف الصوت", "تسجيل صوت جديد"])
 
-if option == 'رفع ملف الصوت':
+with tab1:
     uploaded_file = st.file_uploader("رفع ملف الصوت", type=["wav", "mp3", "m4a"])
 
     if uploaded_file is not None:
@@ -101,22 +99,15 @@ if option == 'رفع ملف الصوت':
         st.markdown(f'<p class="big-font">السبب المحتمل لبكاء الطفل هو: {reasons[predicted_label]}</p>', unsafe_allow_html=True)
         st.image(gifs[predicted_label])
 
-        # Remove the temporary file
-        os.remove(temp_file_path)
-
-else:
-    duration = 5  # Fixed duration of 5 seconds
-    fs = 16000  # Sample rate
-
-    if st.button('بدء التسجيل'):
-        myrecording = sd.rec(int(duration * fs), samplerate=fs, channels=2)
-        st.write("جاري التسجيل...")
-        sd.wait()  # Wait until recording is finished
-        st.write("انتهى التسجيل.")
-
+with tab2:
+    # Record audio using the browser's microphone
+    audio = mic_recorder(start_prompt="Start recording", stop_prompt="Stop recording", just_once=True, format="wav")
+    if audio is not None:
         # Save the recorded audio to a temporary location
         temp_file_path = "temp_file.wav"
-        sf.write(temp_file_path, myrecording, fs)
+        audio_data = np.frombuffer(audio["bytes"], dtype=np.int16)
+        audio_data = audio_data.reshape(-1, 1)  # Assuming mono audio
+        sf.write(temp_file_path, audio_data, audio["sample_rate"])
 
         # Classify the baby's cry
         predicted_label = main(temp_file_path)
