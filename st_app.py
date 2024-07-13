@@ -7,6 +7,15 @@ import numpy as np
 from streamlit_mic_recorder import mic_recorder
 import os
 
+hide_streamlit_style = """
+<style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+</style>
+
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
 # Load the model configuration
 config = AutoConfig.from_pretrained("jstoone/distil-ast-audioset-finetuned-cry")
 
