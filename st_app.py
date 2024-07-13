@@ -28,6 +28,7 @@ st.markdown(
     </style>
     """,
     unsafe_allow_html=True
+)
 
 # Load the model configuration
 config = AutoConfig.from_pretrained("jstoone/distil-ast-audioset-finetuned-cry")
